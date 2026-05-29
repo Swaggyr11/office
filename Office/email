@@ -1,1 +1,9 @@
-Once an on-the-fly column issue is marked as resolved, is there a possibility that the corresponding historical records could still be impacted due to future lookup table changes or upstream corrections? If yes, do we need to implement a daily re-validation mechanism for all previously resolved on-the-fly column records, and what would be the recommended approach to handle such edge cases without impacting pipeline performance?
+Regarding on-the-fly column resolution, we need to confirm the following:
+
+Is it possible for previously resolved historical records to re-encounter issues due to lookup table changes, backdated corrections, or Ownership ID reassignments?
+Do we need a daily re-validation job to scan all prior on-the-fly column records, or can we limit checks to only records impacted by recent lookup changes?
+We need to confirm the recommended re-validation strategy for previously resolved on-the-fly column records:
+
+Full Historical Scan — A scheduled daily job re-evaluates all historical records for every on-the-fly column, regardless of whether the underlying lookup data has changed. Safe but computationally expensive at scale.
+Delta-Based Check — Re-evaluation is scoped only to records impacted by a lookup table change since the last validation run. For example, if the USD/EUR FX rate is corrected on May 28th, only transactions last validated before May 28th and linked to that FX pair are re-processed — avoiding a full historical scan.
+
