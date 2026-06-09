@@ -1,1 +1,23 @@
-Once an on-the-fly column issue is marked as resolved, is there a possibility that the corresponding historical records could still be impacted due to future lookup table changes or upstream corrections? If yes, do we need to implement a daily re-validation mechanism for all previously resolved on-the-fly column records, and what would be the recommended approach to handle such edge cases without impacting pipeline performance?
+Hi Team,
+
+Following our Data Controls strategy discussion, I wanted to document the core technical challenge blocking AM and MM check implementation.
+
+The fundamental issue is that AM and MM data is not partitioned by DWH Business Date. Unlike Breaks — where data is stored and partitioned by DWH Business Date, making it straightforward to scope and run checks for a given day — AM and MM are processed by Statement Date and Action Date respectively. On any single DWH Business Date, the pipeline may receive records spanning multiple statement dates (e.g., Jan 1, Feb 1, March 1 all arriving in the same run).
+
+This causes three downstream problems:
+
+1. Checks cannot be scoped to a specific business date — there is no lightweight way to isolate only the records that arrived today without scanning the entire history across all statement date partitions, which is cost-prohibitive.
+
+2. Failures cannot be attributed to a specific date — when a null check fails, the output shows the failure against a DWH Business Date but cannot identify which statement date or action date caused it. Failures are visible but not actionable.
+
+3. Completeness counts are incomparable — GRU counts records by DWH Business Date, while our BI tables count at statement date / KPI level. These are different grains and will structurally never reconcile, regardless of data correctness.
+
+Adding Statement Date and Action Date as output columns does not resolve this, as the checks still run over the full population for that business date rather than just the delta received that day.
+
+The correct fix requires the new AM pipeline design, which stamps and persists records at the DWH Business Date level as they arrive. Until that design is complete, AM and MM checks cannot be implemented accurately.
+
+As agreed, we will proceed with Breaks (all check types) in the interim and revisit AM and MM once the redesign dependency is resolved.
+
+Please let me know if you have any questions.
+
+Regards
