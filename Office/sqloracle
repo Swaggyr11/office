@@ -1,0 +1,41 @@
+WITH today_cob AS (
+    SELECT MAX(cob_date) AS cob_dt FROM cob_data
+),
+prev_failures AS (
+    SELECT t.row_type
+    FROM   cob_data t
+    JOIN   today_cob tc ON t.cob_date = DATE_SUB(tc.cob_dt, 1)
+    WHERE  t.flag = 'fail' AND t.status = 'Y'
+),
+today_classified AS (
+    SELECT
+        t.cob_date,
+        t.dwh_business_date,
+        t.row_type,
+        t.flag,
+        t.status                              AS old_status,
+        CASE
+            WHEN pf.row_type IS NOT NULL AND t.flag = 'pass' THEN 'N'
+            WHEN pf.row_type IS NOT NULL AND t.flag = 'fail' THEN 'Y'
+            WHEN t.flag = 'fail'                             THEN 'Y'
+            ELSE 'N'
+        END AS new_status
+    FROM   cob_data t
+    JOIN   today_cob tc ON t.cob_date = tc.cob_dt
+    LEFT   JOIN prev_failures pf ON t.row_type = pf.row_type
+)
+SELECT
+    cob_date,
+    dwh_business_date,
+    row_type,
+    flag,
+    old_status,
+    new_status,
+    CASE
+        WHEN old_status IS NULL AND new_status IS NOT NULL THEN 'NEW'
+        WHEN old_status != new_status                      THEN 'CHANGED'
+        ELSE 'NO CHANGE'
+    END AS change_type
+FROM   today_classified
+ORDER  BY row_type;
+ 
