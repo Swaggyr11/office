@@ -1,0 +1,32 @@
+WITH max_ver AS (
+    SELECT COALESCE(MAX(version_no),0) AS max_version
+    FROM dq_results
+)
+SELECT
+    a.run_date,
+    a.run_time,
+    a.kpid,
+    b.max_version +
+    ROW_NUMBER() OVER (ORDER BY a.run_date, a.run_time) AS version_no
+FROM lookup_tbl a
+CROSS JOIN max_ver b;
+
+
+This query is implemented to generate new sequential version numbers for incoming records while maintaining continuity 
+with the existing data in the dq_results(hive) table. First, the Common Table Expression (CTE) max_ver retrieves the 
+highest existing version_no from the table. The COALESCE(MAX(version_no), 0) function ensures that if the table is empty, 
+the maximum version defaults to 0 instead of returning NULL.
+
+The query then reads the records from new_day_data and uses the ROW_NUMBER() window function to assign a unique sequential 
+number to each new record based on the ordering of run_date and run_time. Since ROW_NUMBER() starts from 1 for every 
+execution, it is added to the current maximum version number obtained from dq_results. This ensures that the newly 
+generated version numbers continue from the last existing version rather than starting over from 1.
+
+The CROSS JOIN is used because max_ver returns a single row containing the maximum version number, 
+  and that value needs to be available to every row in new_day_data for the version calculation. As a result, 
+  if the highest existing version is 100 and three new records arrive, they will be assigned version numbers 
+  101, 102, and 103.
+
+This approach is commonly used in ETL and data warehousing processes, particularly for audit tracking, 
+  data quality monitoring, batch processing, and SCD Type 2 implementations, where maintaining a continuous and 
+  unique version history is important for tracking changes and preserving historical records.

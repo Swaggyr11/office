@@ -1,0 +1,34 @@
+WITH last_load AS (
+    SELECT
+        MAX(CONCAT(run_date,' ',run_time)) AS last_ts
+    FROM dq_results
+),
+
+max_ver AS (
+    SELECT
+        COALESCE(MAX(version_no),0) AS max_version
+    FROM dq_results
+),
+
+incremental_rows AS (
+    SELECT a.*
+    FROM new_day_data a
+    CROSS JOIN last_load l
+    WHERE CONCAT(a.run_date,' ',a.run_time) > l.last_ts
+),
+
+versioned_rows AS (
+    SELECT
+        a.run_date,
+        a.run_time,
+        a.check_name,
+        b.max_version +
+        ROW_NUMBER() OVER (
+            ORDER BY a.run_date, a.run_time
+        ) AS version_no
+    FROM incremental_rows a
+    CROSS JOIN max_ver b
+)
+
+SELECT *
+FROM versioned_rows;
