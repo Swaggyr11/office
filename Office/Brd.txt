@@ -1,0 +1,118 @@
+This is a solid read. Here are Acceptance Criteria (ACs) you can take back to the sprint — written from the data engineer / database developer perspective, structured so they are testable and sprint-sized:
+
+Acceptance Criteria — Breaks DQ Framework (DB/DE perspective)
+AC-1: Count Table Schema Compliance
+Given the Breaks Count Table is created in the target schema,
+
+When the schema is inspected,
+
+Then the table must contain all required columns with correct data types:
+ColumnTypeThemeVARCHARKPI_IDVARCHARIssue_ObjectVARCHARDWH_Business_DateDATEInstanceVARCHARRow_TypeINTGRU_CountsINTBI_CountsINTCluster_TypeVARCHAR (NY/NJ)StatusVARCHARUpdate_dateDATE
+No additional undocumented columns. No nullable constraints violated on non-nullable fields.
+
+AC-2: Status Field Domain Enforcement
+Given any DQ check writes a record to the Count Table,
+
+When the Status column is populated,
+
+Then the value must be exactly one of these four valid states:
+
+All good – no issue in counts
+Data missing
+Reload – Post data missing (GRU to BI)
+Refill because of GRU reload (TLM to GRU Hive)
+
+No free-text or NULL values are permitted in the Status column.
+
+AC-3: Update_date Logic
+Given a record's Status or comment is updated (On_Fly_Reopen or Closed transition),
+
+When the update is committed,
+
+Then Update_date must be set to the system date at time of update — not the DWH Business Date, not a static value.
+
+AC-4: Completeness Check — GRU vs BI Row Type Counts
+Given a DWH Business Date and Instance (NY or NJ individually),
+
+When the completeness check runs,
+
+Then:
+
+The job must query RECONMGMT.BREAKS_HIVE_LOAD_STATUS_SUMMARY with dwh_business_date, cluster_type, and status = 'Completed' to get all expected Row Types from GRU.
+It must then pull row counts from the BI fact table (gfolyrck_managed.om_rck_ledger_break_dtl_fact) for the same date, Row Type, server, and instance.
+The GRU count and BI count for each Row Type must match. Any mismatch must be flagged as a Status 2 or 3 record in the Count Table.
+
+
+AC-5: Duplicate Reporting Check
+Given the Breaks fact table is loaded for a DWH Business Date,
+
+When the duplicate check runs,
+
+Then no record should have a duplicate combination of:
+
+Item ID + Instance + DWH + Snapshot Time (Row_Type)
+Any duplicate found must be reported in the Count Table with appropriate Status.
+
+AC-6: NULL Field Checks (On Fly = Yes fields)
+Given the Breaks detail fact table is loaded for a DWH Business Date,
+
+When the NULL checks run for the following fields,
+
+Then each must return zero NULLs — and if NULLs exist, a record must be written to the Count Table:
+
+LVID Region
+LVID Description
+LVID Country
+Rec Type
+Rec Type 2
+Currency (except fact table rows — all NULLs reported)
+Value Date (item_value_date)
+Instance name
+Statement Date
+
+
+AC-7: Not Applicable Fields — No Check Executed
+Given the following fields are marked "Not Applicable" in the spec,
+
+When the DQ job runs,
+
+Then no check is coded or executed for:
+
+Action Date
+SOE ID
+User Hierarchy (key-based check deferred to static validation)
+
+No records for these fields should appear in the Count Table output.
+
+AC-8: FX Rate NULL Exception Handling
+Given the FX Rate field has known TLM currency exceptions,
+
+When the NULL FX Rate check runs,
+
+Then records with Currency codes ACU, GOZ, PLL, NUL, XAA, FOZ must be excluded from the NULL FX Rate alert — these are valid TLM nulls. Only unexpected NULL FX Rates outside this list are flagged.
+
+AC-9: Ownership Hierarchy Validity Check
+Given Ownership ID is present and non-NULL in the fact table,
+
+When the Ownership Hierarchy check runs,
+
+Then Ownership Code and L1 through L8 (Group and Owner name) must all be non-NULL. Any NULL in the hierarchy chain must be flagged.
+
+AC-10: Cluster_Type Partitioning
+Given all checks write output to the Count Table,
+
+When records are written,
+
+Then every record must carry a valid Cluster_Type of either NY or NJ — never NULL, never combined. NY and NJ must be checked and reported independently.
+
+AC-11: On Fly Column Accuracy
+Given the "On Fly" column in the spec governs which checks surface dynamically in the dashboard,
+
+When the pipeline writes results,
+
+Then only checks flagged Yes in the On Fly column must populate the dashboard status view. Checks flagged No go to the Count Table only. Checks flagged N/A are excluded entirely.
+
+What I'd Recommend You Do With These
+Take ACs 1–3 as table/schema stories, ACs 4–10 as individual check stories (one per sprint ticket ideally), and AC-11 as a dashboard integration story. That gives you ~10 cleanly scoped, independently testable sprint items that map 1:1 back to the DA's spec — so there's no ambiguity about what "done" looks like.
+
+
