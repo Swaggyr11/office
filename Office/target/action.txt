@@ -1,0 +1,11 @@
+Action Items
+[ ] Remove the active flag column from the DQ/recon check table and update the insert logic so that new records are always inserted with the flag set to 'Y' instead of using a CASE statement.
+[ ] Remove the environment column from the DQ/recon check table and stop hardcoding the environment value.
+[ ] Parameterize the environment value in the job by reading it from job properties instead of hardcoding it, and ensure the job uses the correct environment value from those properties.
+[ ] Validate sample records in the DQ/recon check table to confirm that the status values (success, fail, purple, amber) are computed correctly according to the agreed logic, and work with the helpdesk if needed to access the required data.
+[ ] Continue working with the helpdesk to resolve Cloudera access issues (for example, the forbidden access error) so that the required data and links can be accessed for validation and development.
+[ ] Update the DQ check view logic so that the status column is renamed to a clearer name (for example, 'status'), the success/fail logic is based only on BI count and GRU count matching (ignoring GRU status), and amber status is set when BA status is success but the GRU lookup timestamp is on a different day than the DWH business date.
+[ ] Add the GRU lookup table's created timestamp column to the DQ/recon check table and ensure that the data load populates this column from the GRU lookup table.
+[ ] Modify the incremental data load logic to use the maximum DWH create time from the DQ/recon check table as a variable and pull only new DWH business dates and row types from that point onward.
+[ ] Add the DWH create time column to the DQ check table and map it so that the same column is used in both the DQ check table and the DQ/recon check table for incremental loading.
+[x] Move the stage table from the CFMU schema to the EFMU schema, if time permits, or plan to do this as a follow-up task.
