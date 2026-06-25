@@ -1,0 +1,9 @@
+Implement the following logic for the Active Flag in the DQ (Data Quality) check table:
+
+Remove the CASE statement that conditionally sets the active flag value during insert — it is no longer needed.
+On every new record insert, always hardcode the active flag as 'Y'. Do not derive it conditionally.
+On rerun of the same record/period, mark the previously inserted record's active flag as 'N' (or 'F' for inactive), then insert the new record with flag = 'Y'.
+The recon check table does NOT need an active flag — remove that column and any related logic from the recon check entirely.
+The DQ check table MUST retain the active flag because the DQ job runs multiple times, and we need to identify the latest successful run vs older runs.
+
+Apply these changes to the relevant insert/update stored procedure or SQL script for the DQ check table.
