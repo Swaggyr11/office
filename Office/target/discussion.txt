@@ -1,0 +1,635 @@
+Speaker 1  0:00  
+Because F Y by default, when you are running the same record, ideally, what should we should do is that you are marking as F, that is perfectly fine, but when you are inserting a new record, it should become as Y, right, we don't need this case conditioning. Okay,
+
+Speaker 2  0:28  
+so here
+
+Speaker 1  0:32  
+in this line, remove the case statement and just put the flag as y. You will insert that record. Now, what happened is that everything else is getting inserted as in think about ideal scenario. In an ideal scenario, you will be scanning only those records which got populated, right? So, let's say, for example, if you run it the same for the June data for the so and so to it, you have inserted the record with flag of pi. Okay, when you rerun it, okay, you're ideally making an inactive record, and you're making another record as active by like that. Is what we are trying to do, so So first of all, remove, remove this column, we don't need it in the recon check. Okay, remove the comment out that call logic. Also, we don't need that active flag, we just simply insert it. We're not doing anything here, we Okay, every time you're populating the data as y,
+
+Speaker 3  1:50  
+okay? Do we like need this, or should I like remove this column itself from the table?
+
+Speaker 1  1:57  
+Remote, remove the column from the table,
+
+Speaker 3  2:01  
+okay? Okay,
+
+Speaker 2  2:11  
+but Rakesh, in the morning you said, right, active lag, we need to include an icon ready.
+
+Speaker 1  2:15  
+Yeah, it's in, it's in. I thought it's a DQ check table, it should be in DQ check, because DQ check, you're gonna run multiple times, right? It is what we needed. Okay,
+
+Speaker 3  2:36  
+this will remove envelopes. Environment also is not needed, because I'm hard coding
+
+Speaker 1  2:46  
+it, so you're putting it in that one ops parameter, right? Are you the environment? UAT, no, no,
+
+Speaker 3  3:00  
+I'm just excited. decided,
+
+Speaker 1  3:03  
+so you have to change that short-coded value to get it from that properties from job properties.
+
+Speaker 2  3:11  
+Okay, you got
+
+Speaker 1  3:14  
+it right.
+
+Speaker 2  3:14  
+Yeah, locally I implemented for the NY and NJ, but I didn't try testing with that.
+
+Speaker 1  3:22  
+Yeah, so you have to put it in the job properties and make sure that you are getting that value from there.
+
+Speaker 2  3:27  
+Okay, yeah,
+
+Speaker 1  3:29  
+okay, clear.
+
+Speaker 2  3:31  
+Yeah,
+
+Speaker 1  3:32  
+okay. Now, now let's look at, is anything else pending, or can we look at the view definition? Now we look, we'll complete it now itself,
+
+Speaker 2  3:41  
+incremental. incremental loading. Actually, how we are going to handle that one, that is
+
+Speaker 1  3:48  
+incremental loading, right? So basically you're going to read the data from that lookup table from the last process time,
+
+Speaker 2  3:56  
+okay?
+
+Speaker 1  3:57  
+Last successful run. So the driving table is your lookup table, am I right?
+
+Speaker 2  4:07  
+Yes, correct.
+
+Speaker 1  4:09  
+Okay, so you will be reading certain DWH business dates or type based on the DWH business date, so you are going to run only once per day, right? Right. so you have to purchase this data set somewhere in Oracle table post completion of the process, and you will be putting something greater than or equal to, that's why. Okay, and you will be pulling the data from that day onwards. Okay, so this also should come from the table, right? So you just purchase this data output into the table and use that table over here to greater than or equal to, pull that values from here. Okay, any other question? And how is this DQ check table? Because so far we are looking at only theory con check. How is the DQ check table looking? Okay, when we have populated UID, okay, so all these flags is no, not applicable, are coming as per the data point, right? Did we validate
+
+Speaker 3  5:54  
+these values?
+
+Speaker 1  5:57  
+Yeah, these values, whether are they coming as per the rules, yeah, it's reverified. Okay,
+
+Speaker 3  6:06  
+I mean, not for every record, but I picked one combination and I checked for it.
+
+Speaker 1  6:12  
+Can we set up the.. can you look at it? The samples..
+
+Speaker 2  6:15  
+no, no, actually, the blocker is.. I'm not able to access you since yesterday. I have raised that ticket. I don't know, like they are saying they will escalate to the next level of team, so I'm not able to access this
+
+Speaker 1  6:29  
+one. You are not able to log into Cloudera.
+
+Speaker 2  6:31  
+Cloudera, I can log in, but from there I cannot access any of the links.
+
+Speaker 1  6:37  
+Why?
+
+Speaker 2  6:38  
+I don't know, like there is some forbidden access. So they also like the help desk already did the skin share, and I don't know, they clear the cashier multiple times. Also restarted, only I can access the auto sis. And are you, are
+
+Speaker 1  6:53  
+you trying it from Ed? No, both, both the
+
+Speaker 2  6:56  
+browsers, I have checked already.
+
+Speaker 1  7:00  
+Okay, can we look at it? Maybe after this one, I'm gonna sit. I need to understand what's actually happening there. We'll check it, but I want you to validate and take frenzy help also if needed, but the data points need to be validated.
+
+Speaker 2  7:14  
+Yeah,
+
+Speaker 1  7:14  
+okay,
+
+Speaker 2  7:14  
+okay,
+
+Speaker 1  7:16  
+yeah. So here is the active flag coming up properly, or is it having a same issue?
+
+Speaker 3  7:26  
+This one looks clear. The flag is coming by, and effective to date is null.
+
+Speaker 1  7:33  
+Okay,
+
+Speaker 3  7:34  
+she's okay.
+
+Speaker 1  7:37  
+Okay, all right. So now can we look at the view definition? Let's see. So we need it only for recon, right? Yes,
+
+Speaker 2  7:48  
+yes.
+
+Speaker 1  7:50  
+Okay, let me log into Oracle instance, and then we'll start writing it. Please give me one minute.
+
+Speaker 2  8:00  
+Okay,
+
+Speaker 1  8:10  
+I'm sharing my screen.
+
+Speaker 4  8:17  
+Okay, your table is now, which one
+
+Speaker 1  8:41  
+is this? The table, right? But we need to look at
+
+Speaker 3  8:48  
+this one. Is DQ check? We have to create for recon. When I get a ping deal,
+
+Speaker 1  9:01  
+I keep getting confused with both of the names.
+
+Speaker 3  9:05  
+This UI one we created for the UI team, but they said that we will use that table only, which you gave us initially. So we are using it in our code for no.
+
+Speaker 1  9:18  
+So this one is the right. I can refer it right to take. Where is the status column? We don't have status column here, right? We dropped this, is what they needed, right? We
+
+Speaker 3  9:46  
+have only VA status. These are previous records, so that is right. Is coming, isn't it?
+
+Speaker 1  9:54  
+Yeah, just trying to get the columnist. Okay, so here's when what is the expected value if I sort it by, okay, so success, so success, we are saying it's a
+
+Speaker 3  10:14  
+green,
+
+Speaker 1  10:16  
+green, green, and do we have GRU status here?
+
+Speaker 5  10:25  
+No,
+
+Speaker 1  10:25  
+GRU, we don't have GRU. I need actual values also. Then we are saying, were they expecting in a unique case, the camel case, or like uppercase? Do you know what is the standard in their thing?
+
+Speaker 2  10:58  
+There is no standard as of now
+
+Speaker 3  11:04  
+tracking this status that is coming in BI status column. Right, I took it based on BI count, GRE count, and GRE status.
+
+Speaker 2  11:16  
+Yeah, correct.
+
+Speaker 1  11:18  
+Yeah, that's right. That is what we are going to do. Okay,
+
+Speaker 3  11:22  
+doing GRD status. I did this already in the code.
+
+Speaker 1  11:26  
+You did already in the code, so you are matching all of them and putting it as success. Is that what you are trying to success?
+
+Speaker 3  11:35  
+Yes, yes, BI count, GRE count, and I am comparing with the GRE status also. If all of them are complete, okay?
+
+Speaker 1  11:44  
+If let's say, for example, if this is what, if it failed, what is the status that you are putting it?
+
+Speaker 2  11:50  
+Fail is
+
+Speaker 1  11:53  
+fail, fail. Uppercase, can I take fail?
+
+Speaker 6  11:55  
+Yeah,
+
+Speaker 1  11:56  
+okay. So here they have classification, right? So they are saying it should be red in color, right?
+
+Speaker 2  12:03  
+Right.
+
+Speaker 1  12:04  
+Yeah, my red, right. Okay, now there is two scenarios. Let's talk about purple one first. Okay, so let's say GRU has resolved it, okay? This data set later day, okay? And the status of that is completed. Okay, and BA status is completed. So, what value are putting in BA status? Is it still success that you are putting it? Okay. So, here my question is, you are comparing GRU count, right? You're counting, comparing GRE count, GRU status, okay? And BI, BI count, okay? So in this scenario, right, what is the status you are putting? Is it, is it still green? Is it still success here?
+
+Speaker 2  13:02  
+Purple, you are Okay,
+
+Speaker 1  13:08  
+I see. Let me copy that one. So values count GRE count equal to BA count. Okay, this is equal to completed 10 counts match 10 success. Okay, okay, it's complete. Everything gets failed. What if in case there is a snapshot copied also right in their status? What does that mean snapshot copied? Let me look at your notes once. One second, let me look at your notes. You described detailed the scenarios other day. Let's look at that chart in that
+
+Speaker 3  14:00  
+call. He was saying called snap only two values we need to check for success, and I mean complete and some,
+
+Speaker 1  14:08  
+but there is a snapshot completed also, right? You remember he was saying fail snapshot copied and completed successfully. You put together one logic, but you will find in your chat, where did you get it?
+
+Speaker 3  14:28  
+I think an SR only happened.
+
+Speaker 1  14:40  
+This one, let's copy these definitions together and put it here. These ones, right? These ones, okay? People, because of GRU. This one, where does the snapshot copied status will come in? Is it when the GRE process reprocessed it? Do we know you remember the snapshot copied scenario
+
+Speaker 3  15:26  
+that one I don't correct
+
+Speaker 1  15:36  
+snapshot copied I Short copy and
+
+Speaker 2  16:04  
+Can you check our group? I just pinged that is received from Naga. One
+
+Speaker 1  16:14  
+second, guys. Okay, you ping no group chat,
+
+Speaker 2  16:22  
+yeah, one
+
+Speaker 1  16:30  
+second, okay,
+
+Speaker 2  16:32  
+yeah, tick
+
+Speaker 1  16:32  
+is still scrolling down,
+
+Speaker 2  16:33  
+yeah.
+
+Speaker 1  16:52  
+Okay, I still see it's halfway. Only I could see only this part. Let me bring it up. Is this what you're referring to
+
+Speaker 2  17:15  
+me? I can't see your screen.
+
+Speaker 1  17:17  
+Yeah, this one you're referring to. This
+
+Speaker 2  17:21  
+one, no. snapshot,
+
+Speaker 1  17:26  
+maybe something. Do you still see there? I don't see it. I think still have to scroll down. Ski keep scrolling down
+
+Speaker 3  17:47  
+before what it came,
+
+Speaker 1  17:52  
+okay. Reload BA, reload snapshot copied Apple. It is it together, is this together? This
+
+Speaker 2  18:11  
+one
+
+Speaker 1  18:14  
+here also, it is snapshot copied and ba reloaded, and then in case of purple, right? So, can we change this condition here? Remove this condition. Sorry, remove this condition. Can we remove it? So, basically, all I want is that the counts match put success, otherwise put fail.
+
+Speaker 7  18:39  
+Okay.
+
+Speaker 1  18:40  
+So, what we will do here, here the GR will take the GRU status. Okay, so the GRU status is completed. Then I will say equal to green. Okay, I'm gonna do it over here, not there. Okay, okay, we'll have to take the exact straight and put it here. Okay, so then it is okay. So, if the BA status will fail, irrespective of whether it's a success or whether it's a irrespective of GRU status, we'll put that as failed in our set, which will be coming as red. Okay, now the third scenario is in case of Gru snapshot copied. Is this the exact string? Can I take it? I want you to confirm
+
+Speaker 3  19:42  
+what snapshot copied
+
+Speaker 1  19:51  
+because this is thin and this is this
+
+Speaker 3  20:02  
+are two entries or snapshot copied, and is this one that I can do, and is this one is having C in uppercase, another having C in lowercase Maybe this is UAT,
+
+Speaker 1  20:38  
+just check, double check on them. Okay, we need exactly
+
+Speaker 3  20:44  
+from
+
+Speaker 1  21:08  
+Okay, so you understood the conditions, right? You look at here, the BA status is success, GR status is snapshot copied. If you did this business day and GRU updated timestamp are equal within save day, then it is green. Otherwise, you're putting it as purple. Okay,
+
+Speaker 3  21:28  
+okay, got it.
+
+Speaker 1  21:30  
+Got it. Now we need to write it for amber. Okay, so amber, what did we said it's a reload at RN, right? Do we have our timestamp? We don't have it right.
+
+Speaker 3  21:46  
+Created a timestamp is there that is ours,
+
+Speaker 1  21:50  
+but that is all for this control table, right? Not the actual data load, not the actual data load.
+
+Speaker 3  21:58  
+Oh, actual data load, you're saying, okay,
+
+Speaker 1  22:00  
+actual data load, we didn't have it here. Do we have anything in the GRU lookup table? The data timestamp, the GRU, this one, right? So we have create time, created time. Can we get this column here? Can we add a column? Let me add right now, ba update bi, what is that called bi create time bi create times tab. Okay, we'll add this now. What we'll do, we'll take this status, we just did on this one. I know it is not.
+
+Speaker 7  23:19  
+You
+
+Speaker 1  23:32  
+make sense now you want all these subjects.
+
+Speaker 2  23:44  
+This amber is not clear to me. Once again, BA status success.
+
+Speaker 1  23:48  
+Okay, so what I'm saying, your BA status is success. Okay, but you did not receive on same day, you have loaded on a different day, whether it's a current day or whatever it is, you are taking this as amber, so you are saying that
+
+Speaker 2  24:07  
+column B I C I T D is the current date or created date.
+
+Speaker 1  24:14  
+This is, see, this is the date you need to get it from this table, this lookup table, so if you look at here, so your DWH business rate is 24th your this date is also 24th right?
+
+Speaker 2  24:31  
+Right.
+
+Speaker 1  24:32  
+Let's say, for example, I have loaded this data again on different date, okay? Maybe I one second, maybe if I loaded it on a different day, 27th or maybe 26th of June. Okay, so then your dates are not matching, okay? Right. So, in that case, what I'm calling it is here, it is Amber,
+
+Speaker 5  25:01  
+okay. case,
+
+Speaker 1  25:04  
+I would say, let's say, let's put this way, DWH business day is greater than or equal to this day, which means it's processing on next day, got it?
+
+Speaker 5  25:16  
+Yeah,
+
+Speaker 1  25:17  
+so here, this is your imagine this is your 24th June data, okay. And here this is maybe this happened on 25th June. Ideally, what we are saying, you got the data, but you reprocessed on next day, but for whatever reason you are reprocessing that data today. Ideally, what will happen is it will be both will be same day. Am I right?
+
+Speaker 2  25:45  
+Yeah, ideally, yes.
+
+Speaker 1  25:47  
+Yeah, one second, one second, I Magnificent. Yes, you Sorry, guys, got a call. So, what I'm saying is, here, if it is processed on same day, we will always show you green, okay? No matter whether it's a BI or a GRU, in any scenarios, you will show it as green, okay? Let's say, if GRU process it on next day, okay? So they need to differentiate green versus a different color, right? So for that, what are we using? Is that if the GRU processed with the DWH business day, GRU processed this later, not the current, okay? Then we will show it as purple color, okay? If the second step is that we reprocess for some reason. Okay, so in that condition, what were you saying is that if our date is not same, which is tomorrow or later or anytime, we are saying in that case it will become amber if def and else the status should be success. Okay, now you're clear, both of you.
+
+Speaker 6  27:27  
+Yeah, yeah, yes.
+
+Speaker 1  27:30  
+Okay, so no matter whether you on which day you processed, if the BI status is failed or GRU status is failed, you're showing it as rent.
+
+Speaker 2  27:39  
+Yeah,
+
+Speaker 1  27:42  
+so for that in your code you just have to put this condition that remove that, just keep it only restricted to the counts. Okay, so now you can create this. Let's see what will happen. Let's recreate you. karma is missing here, karma is missing, something is not right. view is created. Let's look at here, we EA status is coming as null. Why? Okay. Okay, so I should pick up only
+
+Speaker 3  29:06  
+with the view.
+
+Speaker 1  29:11  
+Is this looking perfect now?
+
+Speaker 3  29:18  
+Okay,
+
+Speaker 2  29:21  
+everything is completed as of now.
+
+Speaker 1  29:24  
+Yeah, yeah.
+
+Speaker 3  29:26  
+This column, should we rename it as just status or something?
+
+Speaker 1  29:33  
+Which
+
+Speaker 3  29:35  
+one
+
+Speaker 1  29:36  
+you can rename
+
+Speaker 3  29:38  
+start we have? Yeah, because pa is
+
+Speaker 1  29:43  
+because I don't want to get, I can't lay to be confused. Okay, I don't want to happen that one. Okay, I don't want them to come to us and complain. Okay, do so that's why I'm just putting as BI status, if you want, we can rename it, because we are not going to use
+
+Speaker 2  30:10  
+BI status, yeah, and one more thing in this table, no. So, there is one column, value date. I don't know, like, what is that significance for that? And Banchika, you are asking something on that also to Naga. What was that? Which one value date?
+
+Speaker 1  30:34  
+Value date, value date is an attribute in GRU. We are not deriving, I guess it's not a derived attribute,
+
+Speaker 2  30:41  
+yeah, that is coming from view where it is okay. We are not selecting that,
+
+Speaker 1  30:48  
+yeah,
+
+Speaker 3  30:49  
+that one is in the TQ check. So, in Nagasundra was saying that it is a stamped data, so stamped data means we are storing it in our table also, so we can do the check, a null check for value date, either on the view or on the table, that does not matter. So that
+
+Speaker 2  31:06  
+value data actually is mentioned on the fly, is yes. So, how it is stamped on the BRD, the value, yeah? If even
+
+Speaker 3  31:16  
+if
+
+Speaker 1  31:17  
+you look at the table, right, the table should have that value. It's not something we are derived. That value is exist in the fact table for this one now. So, let me grant it. Okay, so you can edit details.
+
+Speaker 3  31:45  
+So, for now, I have to make the change. I mean, that for that status column, I have to remove complete logic. We have to just compare BI and GR account, and I'll remove active flag again from the check table, break on check.
+
+Speaker 1  32:00  
+Yep, so and
+
+Speaker 8  32:07  
+everything should be parameterized
+
+Speaker 9  32:14  
+parameterized
+
+Speaker 2  32:17  
+environment and Yeah,
+
+Speaker 1  32:22  
+and we decided to put this stage table in EFMU. Do we have time, or if not, we can take it up later?
+
+Speaker 2  32:33  
+Which one? Sorry, which one?
+
+Speaker 1  32:34  
+The stage table should be sitting under EFMU schema, not CFMU scheme, right? So, if you have time, take it up now, or otherwise do it later. That is another thing that we need to do. It's okay.
+
+Speaker 3  32:53  
+Okay,
+
+Speaker 1  32:55  
+so I'll give you this view definition and the this altar. Also, you need to add, because I added a column, you need to make this change and bring that column into the table,
+
+Speaker 2  33:08  
+so, so this execution access for the altar, I cannot do right,
+
+Speaker 1  33:14  
+you have to, you have to add it in the script in the Oracle, so once you can knows it, okay? So this created timestamp. I want you to get that data from this GRU
+
+Speaker 2  33:27  
+table,
+
+Speaker 1  33:28  
+or not GRU, the lookup table. This one,
+
+Speaker 3  33:32  
+so which column you said?
+
+Speaker 1  33:34  
+Yes, DW is created. Yeah, this value should be coming and loading into this recount table, so you need to add it to the stage table. Also, I guess let me give you the script of that one also. Okay, so this, this, this need to be there. Okay, I'm passing all this, so that you, when you include all the pack, the package should have all these things. Okay,
+
+Speaker 3  34:05  
+it will be createable, so altar and everything.
+
+Speaker 1  34:11  
+Yeah, when I say package, I want you to include this, right? You create view. This date needs to be there. All good,
+
+Speaker 3  34:24  
+and I gave you, I mean, Naga gave me the actual, the status column that is populated in GRU production.
+
+Speaker 1  34:33  
+Okay, what is that? Can you give, is this the same values what we have in view definition, or is it different, so Alright, so then sit after you finish off getting many things and start that the data load, so you need one more table to store the data, right? This is
+
+Speaker 2  35:21  
+for our record, right? This table, yeah,
+
+Speaker 1  35:25  
+yeah, DC, last block dead. Okay, so here you're gonna store the DWH, or wait a second. If I already persisted the DWH create time in here, I can take the max of it, and I can pull it right, I So what I'm saying here in this one, if I know the max, right? So based on this, let's say, for example, I this is my max timestamp that I have, so now I'll say greater than or of this one. I'm going to pull it, but to speak up the next set of data, so I don't need a table. I can make use of this table. Okay, get the max out of it, store it into a variable, then pass that variable to here to pull the next set of DWH business days and row types.
+
+Speaker 3  36:47  
+This column, do we need an DQ check also? Or it is okay, because we need to pick date only, right? So I think
+
+Speaker 1  36:57  
+are there two different jobs or one song, one single job, one sequence. Yeah, so then it makes sense, right? So, what is the sequence you are loading? The recon first, or you are loading TQ first? Which one you are loading first? Thank you. First DQ. Okay,
+
+Speaker 3  37:21  
+I'm going One minute, why can't,
+
+Speaker 1  37:26  
+why can't you bring the same column into that table? Also, that is also fine. You just need to map it
+
+Speaker 3  37:36  
+right. I don't know some issue at my end, maybe, but I'm able to hear
+
+Speaker 1  37:41  
+you
+
+Speaker 3  37:42  
+property? Can
+
+Speaker 1  37:43  
+you hear me?
+
+Speaker 2  37:44  
+No, no, I can hear you.
+
+Speaker 1  37:47  
+Okay, what I am saying. Let's add this column into that dequeue check table. Also, if they have the same date, same date. If not, you will bring everything right or wait, but you need to make two changes. You have to pull the data twice. Fine, you can leave it. You can leave. You can use this from the recount table only. That is fine. Okay. Okay. So, Satan, the you're going to continue on the remaining changes, right?
+
+Speaker 2  38:25  
+Yes. Before that, can I share my screen? Just facing issues with that hive, I wanted to check.
+
+Speaker 1  38:31  
+Yeah, so once you go, if you want to drop, you can drop. Okay, Satan, you will take it up. Okay, got it. it.
+
+Speaker 2  38:52  
+Yes, it's coming up, I
+
+Speaker 1  39:04  
+Okay, hold on. So, if you're not able to access to this one, right, I'll give you another URL. You try accessing that one. I'm pinging your link, not direct link. Okay, open this one first. Can you open this one? Open this one, scroll down, click on this UAT in Knox URL. This one login now. This is your Windows password. Okay, not DSSO password. Now open this one access work video. Can you open the any, any URL, any link?
+
+Speaker 2  40:37  
+I can open only view. Sorry, auto sis,
+
+Speaker 1  40:42  
+no, no, from that Knox link that I gave you, the Cloudera,
+
+Speaker 2  40:46  
+because that is also required for me,
+
+Speaker 1  41:00  
+the gateway not opening for you? You are able to login into the server, the Unix server.
+
+Speaker 2  41:11  
+Unique server. No, I haven't tried.
+
+Speaker 1  41:14  
+Can you try login to the server? I just wanted to see which group you are.
+
+Speaker 2  41:18  
+Do you have
+
+Speaker 1  41:19  
+the UAT? open the tech tier
+
+Speaker 2  41:24  
+yesterday I tried
+
+Speaker 1  41:30  
+the tech tier and
+
+Speaker 2  41:56  
+Yeah,
+
+Speaker 1  42:00  
+type ID minus a space minus a space space minus a, you are part of Rock Chief, all your rock only, which we already have. It,
+
+Speaker 2  42:22  
+yeah, since yesterday it's the issue. Otherwise, it was working fine.
+
+Speaker 1  42:27  
+Can you open the same thing in Chrome?
+
+Speaker 2  42:29  
+Yeah, I shouldn't. The same thing in Chrome, only I try. This is in Chrome. Okay. Would that access, but next I already clearing cash in, also restarted the system, but I don't know. This is the ticket.
+
+Speaker 1  43:16  
+What did they say?
+
+Speaker 2  43:17  
+They are saying to send an email to the Realtor support team, so that I've already sent. Also, yeah, this is some no. Sorry to, yeah, once again, yeah, this is I'm already level two. Yeah, they asked me to send an email to the support team. This is actually the blocker for me.
+
+Speaker 3  44:00  
+Six, I
+
+Speaker 10  44:18  
+Maybe
+
+Speaker 1  44:36  
+in edge, also you're not getting it right.
+
+Speaker 2  44:39  
+Wait, sorry,
+
+Speaker 1  44:41  
+in edge, also you're not able to see the data, right?
+
+Speaker 2  44:44  
+Same error in both the browsers,
+
+Unknown Speaker  44:46  
+so.
+
+
+  
