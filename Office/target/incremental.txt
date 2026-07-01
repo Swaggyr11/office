@@ -1,0 +1,14 @@
+The core idea: use the target table's own timestamp to drive the next load
+
+Get the last loaded timestamp from the target table (not the source)
+Speaker 1 stresses that when picking up data for the next run, you should read from the target table (where BI created timestamp already got loaded) — not from the source/lookup table. This becomes your starting point for the incremental pull.
+Take MAX(BI created timestamp) from the target table
+Pull the maximum BI created timestamp already present in the target table and assign it to a variable. This tells you "we've loaded data up to this point already."
+Parameterize by environment
+Since different environments (e.g., NY vs India/NJ) load and process at different times, the max-timestamp check needs to be done per environment — not a single global value. He suggests parameterizing environment (and calls it "theme" instead of "KPI code") so the logic picks the right timestamp for whichever environment is being processed.
+Use that variable to query the breakup/lookup table
+Once you have the max timestamp (per environment), use it to pull new/incremental data from the breakup lookup table — i.e., only fetch records beyond that last-loaded date.
+Get distinct DWH business date and row type from that result
+From the data pulled in step 4, extract distinct combinations of business date and row type — these become the scan keys for the next stage.
+Scan and insert back into the target table
+For each of those distinct date/row-type combinations, run the scan and insert the resulting data into the target table — completing the incremental cycle.
