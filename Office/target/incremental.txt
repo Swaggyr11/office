@@ -12,3 +12,14 @@ Get distinct DWH business date and row type from that result
 From the data pulled in step 4, extract distinct combinations of business date and row type — these become the scan keys for the next stage.
 Scan and insert back into the target table
 For each of those distinct date/row-type combinations, run the scan and insert the resulting data into the target table — completing the incremental cycle.
+
+
+
+Pull the last-loaded timestamp from the target table (not the source) — since this is the table being loaded, it tells you where the last run left off.
+Get MAX(BI created timestamp) from the target table and store it in a variable. This is your checkpoint.
+Do this per environment — because NJ, NY, India etc. each load and finish at different times, so each environment needs its own max-timestamp check (parameterized by environment).
+Use that variable to query the breakup lookup table — pull only the data beyond that last-loaded timestamp.
+Get distinct DWH business date + row type from that pulled data.
+Scan using those distinct date/row-type values, and insert whatever comes out back into the target table.
+
+That's the loop: target table's max BI-created-timestamp → filter lookup table beyond that date → get distinct date/row-t
