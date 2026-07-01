@@ -20,6 +20,23 @@ Get MAX(BI created timestamp) from the target table and store it in a variable. 
 Do this per environment — because NJ, NY, India etc. each load and finish at different times, so each environment needs its own max-timestamp check (parameterized by environment).
 Use that variable to query the breakup lookup table — pull only the data beyond that last-loaded timestamp.
 Get distinct DWH business date + row type from that pulled data.
+
 Scan using those distinct date/row-type values, and insert whatever comes out back into the target table.
+
+
+
+. Add theme name filter to the KPI query
+
+Currently the query pulls all KPIs regardless of theme, which isn't wanted.
+Fix: add a theme_name filter/condition to the recount table query so it only returns rows matching the correct KPI theme.
+
+2. Verify/clean up the integer-to-string conversion
+
+There's a LONG value being converted into a string with a zero-prefix (NULL = ... + '0' style padding).
+The group flagged this as unnecessary — the value is always an integer, so the conversion logic may not be needed. Worth double-checking this logic isn't doing extra/dead work, though they concluded it's "fine" as-is for now.
+
+3. Confirm source of environment_name
+
+They traced where environment_name is coming from (pulled from the next occurrence in the combination-check step) — confirmed as correct, no change needed, just verification.
 
 That's the loop: target table's max BI-created-timestamp → filter lookup table beyond that date → get distinct date/row-t
