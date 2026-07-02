@@ -1,0 +1,6 @@
+Fix view to show only the latest active record per case
+
+Add an effective date filter (effective_from / effective_to) to the view logic so only the currently active row is returned, not all historical versions.
+If multiple runs exist on the same effective date, pick the record from the latest run.
+Ensure this holds even after reloads — no duplicate/historical rows should reappear.
+  
