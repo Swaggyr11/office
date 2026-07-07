@@ -1,0 +1,8 @@
+1. Fix the Spark performance issue (main technical topic)
+The current code loops through every instance/business date/row type combination and runs a separate query each time — extremely inefficient. Instead:
+
+Use a single groupBy on the DataFrame (by instance, DWH business date, row type) and run aggregate checks (count, null checks, duplicate checks) in one pass instead of looping.
+Use withColumn to attach the check results rather than writing individual SELECT statements for each variable.
+Apply the same duplicate/null-count logic to the recon check (currently only checking status = success, which should be simplified too).
+Test incrementally: run it first for one instance and one row type (the smallest one) to check timing, before scaling up to all instances/row types.
+Apply this same "no more looping" fix to both the duplicate check and the recon check.
