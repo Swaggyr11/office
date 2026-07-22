@@ -1,0 +1,30 @@
+Key Decisions
+
+Table restructuring
+
+Create two new tables to replace the current partition-by-business-date setup: an amend table and an actual table
+Actual table partitions by active_flag = Y, plus a div_flag, UUID column
+Goal: consolidate hundreds of small files/directories into one file per directory
+
+Migration approach
+
+Write a separate code base to do a one-time historical load: read all existing data and write it into the new amend table with repartition = 1
+For ongoing (BAU) loads: read existing data from the table, UNION ALL with the day's new data, and write back to the same table with override = Y
+
+Compaction & versioning
+
+Run a compaction job on the new table so files that exceed the ~256MB threshold get split/managed properly
+Run an "auction"/vacuum-type job afterward to avoid keeping multiple file versions
+
+Downstream/config changes
+
+Update the Hive refresh job (referenced as "OneOps" config) — new table name needs its own entry with the same refresh jobs
+Document the changes as comments/"book of work" in the shared file
+
+Deprecations
+
+The log table and process detail table will be removed entirely — process detail is migrating to Oracle first, then the Hive tables get dropped once migration is confirmed
+The break lookup table stays as-is (referenced by UI, so no restructuring), but should be rewritten in a more compact way — using SQL syntax instead of DataFrame syntax, without a repartition value
+Open items flagged in the conversation
+Whether to drop several unclear/redundant "AM enhance" objects (lines 44 and below) — team wasn't sure why they exist
+Whether to push the code now and handle compaction of existing data later, or do both together (leaning toward pushing now, testing, then compacting separately)
