@@ -1,0 +1,7 @@
+Need a code change to compact files. However, it is lookup table and avg file size will be min (<128MB)
+
+split table_amend (active flag, uuid), actual table (active flag -Y)
+
+write into 1 file and 1 directory
+
+add compaction, aux cleanup, modify impala refresh
