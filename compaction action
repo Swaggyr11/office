@@ -1,0 +1,51 @@
+# Action Items — Hive Table Restructuring Sync
+
+## 1. New Table Creation
+- [ ] Create **amend table** for staging/history load
+- [ ] Create **actual table**, partitioned by `active_flag = Y`, with `div_flag` and `UUID` columns
+- **Owner:** Speaker 3 (item statement 1)
+
+## 2. Historical Data Migration
+- [ ] Write a separate/standalone code base to read all existing data from the current table
+- [ ] Write that data into the new amend table in a single file/directory
+- [ ] Use `repartition = 1` for this load
+- **Owner:** Speaker 3
+
+## 3. BAU (Incremental) Load Changes
+- [ ] Modify the daily BAU job: read existing data from the amend table, `UNION ALL` with the day's new data
+- [ ] Write result back to the same table with `partition flag = Y` and `override flag = Y`
+- **Owner:** Speaker 3
+
+## 4. Compaction & Versioning
+- [ ] Set up a compaction job for the new amend/actual table (splits files once they exceed ~256MB)
+- [ ] Set up the accompanying vacuum/"auction" job to prevent multiple file versions from accumulating
+- **Owner:** Speaker 4 to assist / confirm approach
+
+## 5. Job & Config Updates
+- [ ] Update the Hive/OneOps refresh job configuration with a new entry for the new table name
+- [ ] Carry over all existing refresh job configurations to the new entry
+- **Owner:** Speaker 4 (offered to help directly)
+
+## 6. Documentation
+- [ ] Add explanatory comments for these changes in the shared file / "book of work"
+- **Owner:** Speaker 4
+
+## 7. Log & Process Detail Table Deprecation
+- [ ] Migrate existing process detail data to Oracle (one-time cleanup + load)
+- [ ] Once migration is confirmed, drop the log table and process detail table from Hive
+- **Owner:** Speaker 4 (leading), Speaker 1 (confirming Hive-only scope)
+
+## 8. Break Lookup Table Cleanup
+- [ ] Leave table structure as-is (do not restructure — referenced by UI)
+- [ ] Rewrite the load logic using **SQL syntax** instead of DataFrame syntax
+- [ ] Do **not** set a repartition value for this table
+- [ ] Ensure existing data is compressed/compacted (can be done as a follow-up after initial code push)
+- **Owner:** Speaker 1
+
+## 9. Open Items / To Be Decided
+- [ ] Review the multiple "AM enhance" objects (line 44 and below in referenced script) — determine which are still needed and drop unused ones
+- [ ] Decide on sequencing: push current code first and test, then handle compaction of existing data separately vs. bundling both together
+- **Owner:** Speaker 4 & Speaker 1 to align
+
+## 10. No Action Needed
+- Break-lookup direct load (line 56 area) — already writes to a single file daily via truncate-and-load; no partitioning changes required
