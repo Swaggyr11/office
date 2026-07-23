@@ -49,3 +49,16 @@
 
 ## 10. No Action Needed
 - Break-lookup direct load (line 56 area) — already writes to a single file daily via truncate-and-load; no partitioning changes required
+
+
+
+ere are the action points from the discussion:
+
+Create a backup table for the "read daily" table — copy the existing (huge) table into a backup table first, since scanning/loading the full table directly would be too time-consuming.
+Rewrite data back in compacted form — once the backup table is populated, read from it and write the data back into the actual table in a compacted way, to reduce read file counts going forward.
+Push the existing code change to production — deploy the current change (with the view change and the "Y" flag) as-is, so it starts running on a daily basis.
+One-time historical cleanup — separately handle historical data by moving it into the backup table and rewriting it back, since the daily job change will only cover data going forward (e.g., "today's" data), not fix historical records.
+Write a Scala code / auto-save (or "auto sales" — unclear from audio) job for the backup-and-compact process, and test it thoroughly — only proceed with the change once it works 100%.
+Speaker 4 to complete and get the Scala code reviewed (already in progress).
+Plan to push the change over a weekend once testing is complete, so daily compaction can start running smoothly.
+Create a separate job for checkpointing/testing — confirmed as a required step, separate from the main job.
