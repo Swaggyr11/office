@@ -1,0 +1,19 @@
+select count(*) from gfolyrck_managed.om_rck_ledger_mm_item_dtl where
+
+to_date(action_date) = 2026-04-30--plz run this
+
+i will be pinging you few more queries please ber with me for today thye are imp
+
+select sum(total_mm_item_count) from gfolyrck_managed.om_rck_mm_cross_func_summary where mm_action_date = 20260428;
+
+select count(*)from gfolyrck_managed.om_rck_ledger_mm_item_dtl where
+
+to_date(action_date) 2026-04-28
+
+Koppoll, Sravyanth [TECH NE] 8/4/2026 11:10 AM
+
+select count(*) from gfolyrck_managed.om_rck_ledger_mm_item_dtl
+
+where to_date(action_date) ='2026-04-30-piz run this
+
+got result for this?
