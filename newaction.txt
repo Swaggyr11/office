@@ -1,0 +1,20 @@
+Here's the complete list of action items from the meeting:
+
+Sitabdi – Finish modifying the Scala code for historical data load (two files: statement instance keys load, and net delete), applying the same single-file, non-partitioned approach (compressed, split only if >256MB).
+Sitabdi – Update code to read from the keys table instead of the item instance detail table (which will be dropped) — this applies to both the instance code and the net delete code.
+Sitabdi – Remove the unnecessary union step in the one-time historical load (since the keys table is empty on first run, just read and write directly — no need to union).
+Sitabdi – Fix BAU code so it reads full history from the keys table, unions it with the new day's data, and writes the complete dataset back into the keys table (not item instance detail table).
+Sitabdi – Set repartition value to 1 so each write produces a single file per run.
+Sitabdi – Update code to use "amend properties" when writing to the keys table.
+Sitabdi – Create a separate job to do the one-time historical copy: item instance detail table → keys table (distinct from the ongoing BAU job).
+Sitabdi – Kill and restart the currently running Hive box job once the corrected code is deployed.
+Sitabdi – Prepare documentation listing the production deployment steps in sequence, including job names, mirroring what will be run in UAT.
+Kushal – Confirm the Karate script change (table name update) is applied consistently in both the AM object repo and the "enhance" codebase.
+Kushal – Make the required changes in Oracle for both the audit log table and the process detail table.
+Kushal – Create a separate job to copy the audit table and process detail table to Oracle "as is," tested in UAT first.
+Kushal – Push his logging changes to the shared branch.
+Kushal – Add documentation for his tables (audit/process detail) as part of the production sequence steps.
+Both (Sitabdi & Kushal) – Merge their changes (historical load logic + AM logging) into a single shared branch and deploy to UAT for end-to-end testing.
+Both – Ensure the exact UAT run sequence can be replicated in production without changes.
+Both – Have the final, tested version ready by tomorrow, along with completed end-to-end test results.
+Rakesh – Review the final merged code base, test results, and production sequence documentation tomorrow.
