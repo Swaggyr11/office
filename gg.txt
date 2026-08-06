@@ -7,3 +7,12 @@ Update code to use "amend properties" when writing to the keys table.
 Create a separate job to do the one-time historical copy: item instance detail table → keys table (distinct from the ongoing BAU job).
 Kill and restart the currently running Hive box job once the corrected code is deployed.
 Prepare documentation listing the production deployment steps in sequence, including job names, mirroring what will be run in UAT.
+================================================================================
+
+ Finish modifying the Scala code for historical data load (two files: statement instance keys load, and net delete), applying the same single-file, non-partitioned approach (compressed, split only if >256MB).
+ Update code to read from the keys table instead of the item instance detail table (which will be dropped) — this applies to both the instance code and the net delete code.
+ Remove the unnecessary union step in the one-time historical load (since the keys table is empty on first run, just read and write directly — no need to union).
+ Fix BAU code so it reads full history from the keys table, unions it with the new day's data, and writes the complete dataset back into the keys table (not item instance detail table).
+ Set repartition value to 1 so each write produces a single file per run.
+ Update code to use "amend properties" when writing to the keys table.
+ Create a separate job to do the one-time historical copy: item instance detail table → keys table (distinct from the ongoing BAU job).
