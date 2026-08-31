@@ -1,0 +1,80 @@
+Wanted to understand what is this playbook and how it would help in migrating hive to iceberg
+
+This is a Confluence playbook ("Hive to Iceberg Migration Playbook") for automating the migration of on-prem Hive-based applications to Iceberg tables on AWS, using GitHub Copilot's Agent mode as the automation engine. Here's the gist:
+
+What it does
+It's essentially a prompt-driven automation kit. You feed Copilot (running in Agent mode, using a Claude model) a set of reference files, and it generates the migration artifacts for you instead of you writing them by hand.
+
+Setup
+
+IDE: IntelliJ IDEA (recommended for Scala), VS Code, or PyCharm, with GitHub Copilot enabled
+You create an ICEBERG_MIGRATION folder under src/main and drop in:
+Iceberg_Migration_Agent.md — the playbook/instructions file itself
+JIL.txt — job scheduling definitions
+Job_Properties.txt — ORAAS properties
+Job_Scala_File_Mapping.txt — maps jobs to their Scala source and end tables
+Table_metadata.csv — table schema/metadata
+How you run it
+In Copilot's Agent chat, you attach the Iceberg_Migration_Agent.md file plus the specific Scala file you want migrated, then give it a natural-language prompt, e.g.:
+
+"Refer Iceberg_Migration_Agent.md and migrate [file].scala alone and its relevant DDL/ORAAS/JIL"
+"Refer Iceberg_Migration_Agent.md and Generate DDL's alone for the end tables in Job Scala mapping"
+What it outputs
+
+Iceberg-compatible DDL scripts
+ORAAS configuration files
+JIL scripts (job scheduling)
+Migrated Scala code files
+Important safeguard: it doesn't overwrite your existing source — it generates new files alongside the originals so developers can review/validate before merging into the main codebase.
+
+Current scope: fully working for apps built on the "Step Framework." They're still extending it to cover the "DC Framework" and testing ALTER TABLE scenarios where existing data needs to be preserved during migration.
+
+Given this is Citi-internal tooling tied to Nucleus (the AWS data migration space), if you want, I can help you think through how this would map onto your reconciliation pipeline (e.g., which of your Hive tables/jobs would be good first candidates, or what an ALTER TABLE-preserving migration means for your Breaks DQ tables) — just let me know.
+
+Yes
+
+
+Read a memory
+Read a memory
+Good — this maps quite well onto your setup. Here's how I'd think about it:
+
+Where your pipeline touches Hive today
+Your data flow is GRU → Hive/HDFS → Impala → UI, with the reconciliation KPIs (Auto Match, Manual Match, Breaks) all landing in Hive first. That's exactly the kind of Hive-resident, Scala/Spark-job-driven architecture this playbook targets — it's built to convert Hive-backed Spark jobs (JIL + ORAAS + DDL + Scala) to Iceberg equivalents.
+
+Good first candidates
+
+BreaksTlmDataControlLoad / om_rck_break pipeline — this is a well-scoped, single-purpose Spark job with a clear stage-table-plus-MERGE write pattern. Migrating its Hive DDL to Iceberg would be a contained test case before touching the bigger AM/MM flows.
+BreaksDQCJob — you've already optimized this one (bulk GROUP BY vs. repeated runCount calls), so its logic is well understood, which makes it a lower-risk pilot for the playbook's "generate migrated Scala + DDL" flow.
+Where the "ALTER TABLE preserving existing data" work-in-progress matters to you specifically
+Your om_rck_break_dq_stg / om_rck_break_dq_chk tables use SCD-style active-flag patterns with RANK-based dedup logic — that means historical state matters (you can't just drop and recreate). The playbook currently only fully supports fresh Iceberg DDL generation; the ALTER-TABLE-with-data-preservation path is still "in progress" per the doc. So for your stage/check tables specifically, I'd hold off until that capability matures, or plan a manual backfill step rather than relying on the automated path yet.
+
+Practical entry point
+Given the playbook only supports the "Step Framework" currently, it's worth confirming whether BreaksTlmDataControlLoad and om_rck_break were built on that framework — that's the gating factor for whether you can use this today versus needing to wait for DC Framework support.
+
+Want me to sketch out what a sample prompt would look like for kicking off a trial migration of BreaksDQCJob specifically, based on the pattern in the screenshots?
+
+Yes
+
+Following the pattern from the screenshots, here's how you'd structure it in the Copilot Agent window:
+
+Setup step (before prompting):
+Attach Iceberg_Migration_Agent.md (toggle ON) plus the specific Scala file(s) for the job — e.g. the file containing BreaksDQCJob, and any file with the BreaksTlmDataControlLoad logic if it's separate.
+
+Sample prompt — full migration:
+
+Refer Iceberg_Migration_Agent.md and migrate BreaksDQCJob.scala alone and its relevant DDL/ORAAS/JIL
+
+Sample prompt — DDL-only dry run (safer first pass):
+
+Refer Iceberg_Migration_Agent.md and generate DDL's alone for the end tables in Job Scala mapping for om_rck_break_dq_stg and om_rck_break_dq_chk
+
+Sample prompt — scoped to one job only:
+
+Refer Iceberg_Migration_Agent.md and migrate BreaksDQCJob code and its ORAAS/JIL/DDL
+
+Suggested order of operations for your pilot:
+
+Start with the DDL-only prompt for om_rck_break_dq_stg / om_rck_break_dq_chk — since these use the SCD active-flag + RANK-dedup pattern, you want to eyeball the generated Iceberg DDL first (partition spec, sort order, merge-on-read vs copy-on-write config) before letting it touch job code.
+Once DDL looks right, run the full migration prompt on BreaksDQCJob.scala since you already know that job's logic well from the runCount() optimization work — easiest to validate correctness against.
+Hold off on BreaksTlmDataControlLoad/the stage-table-plus-MERGE write-back path until you've confirmed the Oracle JDBC write-back utility doesn't need Iceberg-specific changes (the playbook's DDL/JIL/ORAAS generation is Hive-side; your Oracle write-back layer is a separate concern it won't touch).
+One thing worth checking before you start: whether Job_Scala_File_Mapping.txt and Table_metadata.csv already have entries for these two jobs, since the playbook relies on that mapping to know which end tables to generate DDL for.
