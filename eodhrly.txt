@@ -1,0 +1,34 @@
+Let me break this down with a simple example.
+
+The Problem
+
+The EOD (end-of-day) job works like this normally:
+
+It reads data from the hourly snapshot table
+It loads that data into the EOD snapshot table
+Each run is tied to a specific business date (passed in as a parameter)
+
+The job is supposed to capture every "instance row type" for that day. Think of "instance row types" as different categories or kinds of records that need to be captured — e.g., maybe there are trade records, position records, balance records, etc., all of which count as different row types.
+
+The edge case: What if the job runs for September 1st, but for some reason (a hiccup, a missing source file, a partial failure) it only manages to load some of the row types — not all of them?
+
+Right now, the job doesn't have a way to know that September 1st was incomplete. So on September 2nd, it just moves forward and processes September 2nd's data — permanently leaving September 1st with gaps. That's a silent data-quality problem no one would notice until someone goes looking for a missing row type later.
+
+The Fix
+
+Sadafi's proposed solution is a simple checkpoint table — basically a tracking table that says, for each business day, "did we successfully load everything we were supposed to?"
+
+After a day's run finishes, the job checks: did all expected row types get loaded?
+Yes → mark that day as Y (complete, nothing more to do)
+No → mark that day as N (incomplete, something's still missing)
+On the next run, before just processing "today," the job first checks this table for any day marked N. If it finds one, it goes back and tries to backfill that day's missing row types — instead of just barreling ahead to the new day and ignoring the gap.
+
+This table lives in Oracle, not Hive — likely because Oracle is better suited for this kind of small, frequently-updated lookup/control table, versus Hive which is more for large batch data.
+
+Analogy
+
+Think of it like a school attendance checklist. Instead of just marking "Monday: done" and moving to Tuesday no matter what, the teacher keeps a checklist of which students were marked present each day. If Monday's checklist wasn't fully filled out, Tuesday's routine includes going back to finish Monday's list first — rather than assuming Monday is closed and moving on.
+
+Why It Matters
+It's a safety net for a scenario that hasn't happened yet ("it may not happen," Sadafi says) but is possible — so they want to build resilience into the system now rather than discover data gaps later.
+Raphi's role: validate that this checkpoint approach actually works logically and technically, and coordinate with Princey (who's been assigned this but moving slowly) so they're not duplicating or conflicting work.
