@@ -32,3 +32,5 @@ Think of it like a school attendance checklist. Instead of just marking "Monday:
 Why It Matters
 It's a safety net for a scenario that hasn't happened yet ("it may not happen," Sadafi says) but is possible — so they want to build resilience into the system now rather than discover data gaps later.
 Raphi's role: validate that this checkpoint approach actually works logically and technically, and coordinate with Princey (who's been assigned this but moving slowly) so they're not duplicating or conflicting work.
+
+
