@@ -1,3 +1,22 @@
-# Python: loop from 1 to 50 (inclusive)
-for i in range(1, 51):
-	print(i)
+val incrementalBusinessDateFloor: String =
+  if (lastLoadDate == null || lastLoadDate.trim.isEmpty || lastLoadDate.equalsIgnoreCase("NULL")) {
+    logger.warn(s"lastLoadDate is '$lastLoadDate'; falling back to control-table start date $startStr for incremental window.")
+    startStr
+  } else {
+    lastLoadDate
+  }
+
+val incrementalStartTs: String =
+  if (lastLoadedTimestamp == null || lastLoadedTimestamp.trim.isEmpty || lastLoadedTimestamp.equalsIgnoreCase("NULL")) {
+    logger.warn(s"lastLoadedTimestamp is '$lastLoadedTimestamp'; falling back to a sentinel far in the past so the incremental filter includes everything available.")
+    "1900-01-01 00:00:00.000"
+  } else {
+    lastLoadedTimestamp
+  }
+
+// then in the filter:
+.filter(
+  col("DWH_UPDATED_TIME") > to_timestamp(lit(incrementalStartTs), "yyyy-MM-dd HH:mm:ss.SSS") &&
+  col("dwh_business_date") >= lit(incrementalBusinessDateFloor).cast("int") &&
+  col("bus_audit_action_date") >= lit(startStr).cast("int")
+)
