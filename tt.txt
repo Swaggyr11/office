@@ -1,22 +1,60 @@
-val incrementalBusinessDateFloor: String =
-  if (lastLoadDate == null || lastLoadDate.trim.isEmpty || lastLoadDate.equalsIgnoreCase("NULL")) {
-    logger.warn(s"lastLoadDate is '$lastLoadDate'; falling back to control-table start date $startStr for incremental window.")
-    startStr
-  } else {
-    lastLoadDate
-  }
+hive
+col name
+data type
+om_hr_organization_manager global_goal_value_sk
+bigint
+goal
+string
+value
+decimal(10,0)
+string
+system last updated_user_id
+string
+system creator user_id
+timestamp with local time zone
+system creation date
+timestamp with local time zone
+system last_write timestamp
+timestamp with local time zone
+effective_from_date
+cdc_md5_hash_key
+string
+nk md5_hash_hey
+timestamp with local time zone
+effective to date
+string
+2 active flag
+string
+dwh batch_id
+timestamp with local time zone
+4 dwh.create timestamp
+timestamp with local time zone
+5 dwh updated timestamp
+string
+dwh_updated_by
+string
+dwh updated reason
+dwh message id
+string
+string
 
-val incrementalStartTs: String =
-  if (lastLoadedTimestamp == null || lastLoadedTimestamp.trim.isEmpty || lastLoadedTimestamp.equalsIgnoreCase("NULL")) {
-    logger.warn(s"lastLoadedTimestamp is '$lastLoadedTimestamp'; falling back to a sentinel far in the past so the incremental filter includes everything available.")
-    "1900-01-01 00:00:00.000"
-  } else {
-    lastLoadedTimestamp
-  }
 
-// then in the filter:
-.filter(
-  col("DWH_UPDATED_TIME") > to_timestamp(lit(incrementalStartTs), "yyyy-MM-dd HH:mm:ss.SSS") &&
-  col("dwh_business_date") >= lit(incrementalBusinessDateFloor).cast("int") &&
-  col("bus_audit_action_date") >= lit(startStr).cast("int")
-)
+
+db
+Mane
+Null?
+Type
+TLAST USER ID
+VARCHAR2 (50 CHAR)
+TCREATOR ID
+VARCHAR2 (50 CHAR)
+I_CREATION_DATE
+TIMESTAMP(6)
+I LAST WRITE
+TIMESTAMP (6
+GOAL
+NOT NULL
+VARCHAR2(80 CHAR)
+VALUE
+NUMBER
+
